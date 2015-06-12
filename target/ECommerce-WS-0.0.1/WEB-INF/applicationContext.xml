@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:ws="http://jax-ws.java.net/spring/core"
+       xmlns:wss="http://jax-ws.java.net/spring/servlet"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://jax-ws.java.net/spring/core
+        http://jax-ws.java.net/spring/core.xsd
+        http://jax-ws.java.net/spring/servlet
+        http://jax-ws.java.net/spring/servlet.xsd"
+>
+
+	<wss:binding url="/orderService">
+		<wss:service>
+			<ws:service bean="#orderService" />
+		</wss:service>
+	</wss:binding>
+
+	<!-- Web service methods -->
+	<bean id="orderService" class="com.appdynamics.inventory.OrderService">
+		<property name="orderDao" ref="orderDao" />
+	</bean>
+
+	<bean id="orderDao" class="com.appdynamics.inventory.OrderDaoImpl" />
+
+
+	<!-- database properties file configurer -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/database.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="persistenceUnitName" value="pu"/>
+        <property name="jpaVendorAdapter">
+            <bean  class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+
+                <property name="showSql" value="true"/>
+                <property name="generateDdl" value="false"/>
+                <property name="database" value="MYSQL"/>
+
+
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName">
+            <value>${hibernate.connection.driver_class}</value>
+        </property>
+        <property name="url">
+            <value>${hibernate.connection.dburl}</value>
+        </property>
+        <property name="username">
+            <value>${hibernate.connection.username}</value>
+        </property>
+        <property name="password">
+            <value>${hibernate.connection.password}</value>
+        </property>
+
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+</beans>
